@@ -9,6 +9,7 @@ on:
 
 jobs:
   build:
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,7 +57,7 @@ jobs:
           TAG: "master-latest,master-${{ github.sha }}"
 
       - name: Push images
-        run: tox -e run -- push all
+        run: tox -e custom -- push all
         env:
           REGISTRY: quay.io
           NAMESPACE: amoralej

@@ -211,10 +211,10 @@ STREAM=master tox -eupdate-sources
 # Build all images
 STREAM=master tox -ebuild
 
-# Run any build.sh command via the generic 'run' target
-STREAM=master tox -erun -- update-sources watcher
-STREAM=stable tox -erun -- build watcher/watcher-api
-tox -erun -- list
+# Run any build.sh command via the generic 'custom' target
+STREAM=master tox -ecustom -- update-sources watcher
+STREAM=stable tox -ecustom -- build watcher/watcher-api
+tox -ecustom -- list
 ```
 
 ### Initial setup
