@@ -534,17 +534,18 @@ generate_requirements_lock() {
     return
   fi
 
-  # Collect requirements.txt from all source packages at project level
+  # Collect input files using relative paths (from project_dir) so that
+  # pip-compile doesn't embed full filesystem paths in the output.
   local input_files=()
 
   for req in "${project_dir}"/src/*/requirements.txt; do
-    [[ -f "${req}" ]] && input_files+=("${req}")
+    [[ -f "${req}" ]] && input_files+=("${req#"${project_dir}"/}")
   done
 
   # Collect dep files at the project level (used by base container)
   for depfile in pythondeps.txt pythonbuilddeps.txt; do
     if [[ -f "${project_dir}/${depfile}" ]]; then
-      input_files+=("${project_dir}/${depfile}")
+      input_files+=("${depfile}")
     fi
   done
 
@@ -555,12 +556,12 @@ generate_requirements_lock() {
     [[ ! -f "${image_dir}/Containerfile" ]] && continue
 
     for req in "${image_dir}"/src/*/requirements.txt; do
-      [[ -f "${req}" ]] && input_files+=("${req}")
+      [[ -f "${req}" ]] && input_files+=("${req#"${project_dir}"/}")
     done
 
     for depfile in pythondeps.txt pythonbuilddeps.txt; do
       if [[ -f "${image_dir}/${depfile}" ]]; then
-        input_files+=("${image_dir}/${depfile}")
+        input_files+=("${image}/${depfile}")
       fi
     done
   done
@@ -570,13 +571,14 @@ generate_requirements_lock() {
     return
   fi
 
-  local lock_file="${project_dir}/${CONSTRAINTS_FILE}.${stream}"
+  local lock_file="${CONSTRAINTS_FILE}.${stream}"
 
-  echo "--- Generating ${lock_file} ---"
-  pip-compile --allow-unsafe --strip-extras \
-    -c "${constraints_file}" \
-    -o "${lock_file}" \
-    "${input_files[@]}"
+  echo "--- Generating ${project_dir}/${lock_file} ---"
+  (cd "${project_dir}" && \
+    pip-compile --allow-unsafe --strip-extras \
+      -c "${UPSTREAM_CONSTRAINTS}.${stream}" \
+      -o "${lock_file}" \
+      "${input_files[@]}")
 }
 
 # Generate requirements.lock for each project in the target scope.
