@@ -5,6 +5,8 @@ ARG BASE_IMAGE=localhost/openstack/openstack-base:latest
 # --- Build stage: compile wheels and collect upstream config ---
 FROM ${BASE_IMAGE} AS build
 
+ARG SERVICE_SRC=/src/cyborg
+
 # Copy constraints file and all source repos into the build stage
 ARG CONSTRAINTS_FILE=requirements.lock
 COPY ${CONSTRAINTS_FILE} /deps-upper-constraints.txt
@@ -47,6 +49,18 @@ RUN for src_dir in /src/*/ /src/overrides/*/; do \
       fi; \
     done > /source-built-packages.txt
 
+# Install wheels temporarily so entry points are available for config generation
+RUN pip3 install --no-cache-dir --prefix=/usr \
+      -c /tmp/build-constraints.txt \
+      /wheels/*.whl
+
+# Generate default config
+RUN mkdir -p /configfiles/etc/cyborg && \
+    oslo-config-generator \
+      --config-file ${SERVICE_SRC}/tools/config/cyborg-config-generator.conf \
+      --output-file /configfiles/etc/cyborg/cyborg.conf && \
+    sed -i "/#pybasedir.*/d" /configfiles/etc/cyborg/cyborg.conf
+
 # --- Runtime stage: install from wheels ---
 FROM ${BASE_IMAGE}
 
@@ -80,11 +94,14 @@ RUN mkdir -p /etc/cyborg && \
     chown -R cyborg:cyborg /etc/cyborg /var/log/cyborg /var/lib/cyborg
 
 # Install config files — each file listed explicitly
+# From upstream source (via build stage):
+COPY --from=build /configfiles/etc/cyborg/cyborg.conf /etc/cyborg/cyborg.conf
 # From common config (repo-maintained):
 COPY common/config/etc/sudoers.d/kolla_cyborg_sudoers /etc/sudoers.d/kolla_cyborg_sudoers
 
 # Set config file permissions
-RUN chmod 750 /etc/sudoers.d && \
+RUN chmod 640 /etc/cyborg/cyborg.conf && \
+    chmod 750 /etc/sudoers.d && \
     chmod 440 /etc/sudoers.d/kolla_cyborg_sudoers && \
     chown -R cyborg:cyborg /etc/cyborg
 
