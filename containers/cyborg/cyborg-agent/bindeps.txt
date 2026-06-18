@@ -1,0 +1,3 @@
+# Runtime system dependencies for cyborg-agent
+# PCI device discovery and management
+pciutils

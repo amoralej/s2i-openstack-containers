@@ -1,0 +1,5 @@
+# Additional Python packages not in cyborg's requirements.txt
+# Database driver (mysql extra for oslo.db)
+oslo.db[mysql]
+# Caching backend (dogpile extra for oslo.cache)
+oslo.cache[dogpile]
