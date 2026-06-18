@@ -166,6 +166,12 @@ upper-constraints.txt -> upper-constraints.txt.master
 These symlinks allow Containerfiles to use `ARG CONSTRAINTS_FILE=requirements.lock`
 without needing to know which stream is active.
 
+**Important:** Whenever you modify `sources.txt`, `pythondeps.txt`,
+`pythonbuilddeps.txt`, `bindeps.txt`, or `builddeps.txt`, you must re-run
+`build.sh update-sources` (or `tox -e update-sources`) to regenerate the
+lockfile, constraints, and `rpms.in.yaml`. Failing to do so will cause
+builds to use stale dependency pins.
+
 ## Prerequisites
 
 ### System packages

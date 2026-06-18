@@ -25,3 +25,6 @@ jobs:
 
       - name: Build images
         run: tox -e build
+
+      - name: list images
+        run: podman images
