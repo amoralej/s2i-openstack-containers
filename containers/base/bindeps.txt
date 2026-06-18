@@ -1,0 +1,11 @@
+ca-certificates
+curl
+glibc-langpack-en
+procps-ng
+python3
+sudo
+util-linux-user
+which
+dumb-init
+python3-pip
+
