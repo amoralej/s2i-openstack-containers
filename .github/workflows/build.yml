@@ -33,6 +33,11 @@ jobs:
   build-and-push:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    env:
+      REGISTRY_AUTH_FILE: ${{ github.workspace }}/.docker-auth.json
+      REGISTRY: quay.io
+      NAMESPACE: amoralej
+      TAG: "master-latest,master-${{ github.sha }}"
     steps:
       - uses: actions/checkout@v4
 
@@ -46,24 +51,13 @@ jobs:
       - name: Install tox
         run: pip install tox
 
-      - name: Log in to Quay.io
-        run: |
-          buildah login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" quay.io
-          podman login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" quay.io
-
       - name: Build images
         run: tox -e build
-        env:
-          REGISTRY: quay.io
-          NAMESPACE: amoralej
-          TAG: "master-latest,master-${{ github.sha }}"
 
-      - name: Push images
-        run: tox -e custom -- push all
-        env:
-          REGISTRY: quay.io
-          NAMESPACE: amoralej
-          TAG: "master-latest,master-${{ github.sha }}"
+      - name: Log in and push images
+        run: |
+          buildah login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" "${REGISTRY}"
+          tox -e custom -- push all
 
       - name: List images
         run: podman images
