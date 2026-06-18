@@ -1,0 +1,2 @@
+# Python packages needed in the build stage
+pbr

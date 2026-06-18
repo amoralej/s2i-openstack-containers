@@ -1,0 +1,5 @@
+# Runtime system dependencies for cyborg (api + conductor)
+# WSGI (needed for cyborg-api)
+httpd
+mod_ssl
+python3-mod_wsgi
