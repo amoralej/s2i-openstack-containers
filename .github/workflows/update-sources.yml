@@ -48,16 +48,11 @@ jobs:
           git push --force-with-lease -u origin "${BRANCH}"
           EXISTING=$(gh pr list --head "${BRANCH}" --json number --jq '.[0].number // empty')
           if [[ -z "${EXISTING}" ]]; then
-            gh pr create \
-              --title "Update sources" \
-              --body "$(cat <<'EOF'
-          Automated source update from `tox -e update-sources`.
-
-          Changes may include:
-          - Updated pinned hashes in `sources.txt`
-          - Regenerated `requirements.lock.<stream>`
-          - Regenerated `upper-constraints.txt.<stream>`
-          - Regenerated `rpms.in.yaml`
-          EOF
-              )"
+            BODY="Automated source update from \`tox -e update-sources\`."
+            BODY="${BODY}"$'\n\n'"Changes may include:"
+            BODY="${BODY}"$'\n'"- Updated pinned hashes in \`sources.txt\`"
+            BODY="${BODY}"$'\n'"- Regenerated \`requirements.lock.<stream>\`"
+            BODY="${BODY}"$'\n'"- Regenerated \`upper-constraints.txt.<stream>\`"
+            BODY="${BODY}"$'\n'"- Regenerated \`rpms.in.yaml\`"
+            gh pr create --title "Update sources" --body "${BODY}"
           fi
