@@ -1,0 +1,63 @@
+name: Update sources
+
+on:
+  schedule:
+    - cron: '17 5 * * *'  # daily at 05:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-sources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install tox
+
+      - name: Run update-sources
+        run: STREAM=master tox -e update-sources
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet -- containers/; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create or update PR
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="auto/update-sources"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${BRANCH}"
+          git add containers/
+          git commit -m "Update sources ($(date +%Y-%m-%d))"
+          git push --force-with-lease -u origin "${BRANCH}"
+          EXISTING=$(gh pr list --head "${BRANCH}" --json number --jq '.[0].number // empty')
+          if [[ -z "${EXISTING}" ]]; then
+            gh pr create \
+              --title "Update sources" \
+              --body "$(cat <<'EOF'
+          Automated source update from `tox -e update-sources`.
+
+          Changes may include:
+          - Updated pinned hashes in `sources.txt`
+          - Regenerated `requirements.lock.<stream>`
+          - Regenerated `upper-constraints.txt.<stream>`
+          - Regenerated `rpms.in.yaml`
+          EOF
+              )"
+          fi
