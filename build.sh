@@ -89,6 +89,7 @@ BASE_IMAGE="${BASE_IMAGE:-${REGISTRY}/${NAMESPACE}/${IMAGE_PREFIX}-base:${TAG%%,
 CONSTRAINTS_FILE="${CONSTRAINTS_FILE:-requirements.lock}"
 UPSTREAM_CONSTRAINTS="upper-constraints.txt"
 DEFAULT_STREAM="${DEFAULT_STREAM:-master}"
+PARALLEL="${PARALLEL:-$(nproc)}"
 
 # Discover all buildable images from the directory structure.
 discover_images() {
@@ -783,6 +784,89 @@ case "${ACTION}" in
       build_image "${img}"
     done
     ;;
+  build-parallel)
+    _bp_targets=($(resolve_targets "${TARGET}"))
+
+    # Build base first (all service images depend on it)
+    for _bp_img in "${_bp_targets[@]}"; do
+      [[ -n "$(project_name "${_bp_img}")" ]] && continue
+      build_image "${_bp_img}"
+    done
+
+    # Pre-clone sources so parallel builds don't race on the same directories
+    for _bp_img in "${_bp_targets[@]}"; do
+      [[ -z "$(project_name "${_bp_img}")" ]] && continue
+      ensure_sources_for_stream "${_bp_img}" "${STREAM}"
+    done
+
+    # Build service images in parallel (max PARALLEL at a time)
+    if [[ -n "${BUILD_LOGS_DIR:-}" ]]; then
+      _bp_logdir="${BUILD_LOGS_DIR}"
+      mkdir -p "${_bp_logdir}"
+    else
+      _bp_logdir=$(mktemp -d)
+    fi
+    _bp_service_imgs=()
+    for _bp_img in "${_bp_targets[@]}"; do
+      [[ -z "$(project_name "${_bp_img}")" ]] && continue
+      _bp_service_imgs+=("${_bp_img}")
+    done
+
+    if [[ ${#_bp_service_imgs[@]} -gt 0 ]]; then
+      echo "--- Building ${#_bp_service_imgs[@]} images (max ${PARALLEL} parallel) ---"
+      declare -A _bp_pids=()
+      _bp_fail=0
+      _bp_running=0
+
+      for _bp_img in "${_bp_service_imgs[@]}"; do
+        # Wait for a slot if at the limit
+        while [[ ${_bp_running} -ge ${PARALLEL} ]]; do
+          if ! wait -n; then
+            _bp_fail=1
+            break 2
+          fi
+          ((_bp_running--)) || true
+        done
+
+        _bp_log="${_bp_logdir}/${_bp_img//\//_}.log"
+        build_image "${_bp_img}" > "${_bp_log}" 2>&1 &
+        _bp_pids[$!]="${_bp_img}"
+        ((_bp_running++)) || true
+      done
+
+      # Wait for remaining builds
+      if [[ ${_bp_fail} -eq 0 ]]; then
+        while [[ ${_bp_running} -gt 0 ]]; do
+          if ! wait -n; then
+            _bp_fail=1
+            break
+          fi
+          ((_bp_running--)) || true
+        done
+      fi
+
+      # Show logs for all builds
+      for _bp_log in "${_bp_logdir}"/*.log; do
+        _bp_name=$(basename "${_bp_log}" .log)
+        echo "=== ${_bp_name} ==="
+        cat "${_bp_log}"
+        echo ""
+      done
+
+      if [[ ${_bp_fail} -eq 1 ]]; then
+        echo "ERROR: A build failed, killing remaining builds" >&2
+        for _bp_pid in "${!_bp_pids[@]}"; do
+          kill "${_bp_pid}" 2>/dev/null || true
+        done
+        wait 2>/dev/null || true
+        [[ -z "${BUILD_LOGS_DIR:-}" ]] && rm -rf "${_bp_logdir}"
+        exit 1
+      fi
+
+      [[ -z "${BUILD_LOGS_DIR:-}" ]] && rm -rf "${_bp_logdir}"
+      echo "=== All builds completed successfully ==="
+    fi
+    ;;
   push)
     _push_targets=($(resolve_targets "${TARGET}"))
 
@@ -857,7 +941,7 @@ case "${ACTION}" in
     list_images
     ;;
   *)
-    echo "Usage: STREAM=<name> $0 {build|push|update-sources|install-deps|list} [image-name|all]"
+    echo "Usage: STREAM=<name> $0 {build|build-parallel|push|update-sources|install-deps|list} [image-name|all]"
     echo ""
     echo "Images (discovered from containers/):"
     for dir_name in $(discover_images); do
@@ -876,6 +960,8 @@ case "${ACTION}" in
     echo "  BASE_IMAGE        Base image for the base container"
     echo "  CONSTRAINTS_FILE  Constraints/lockfile base name (default: requirements.lock)"
     echo "  DEFAULT_STREAM    Default stream for un-streamed symlinks (default: master)"
+    echo "  PARALLEL          Max concurrent builds for build-parallel (default: nproc)"
+    echo "  BUILD_LOGS_DIR    Persist build-parallel logs to this directory"
     echo ""
     echo "Source directories: containers/<project>/src/<name>/"
     echo "Overrides:          containers/<project>/src/overrides/<pkg>/"
