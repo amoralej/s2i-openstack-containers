@@ -45,7 +45,7 @@ jobs:
           git checkout -b "${BRANCH}"
           git add containers/
           git commit -m "Update sources ($(date +%Y-%m-%d))"
-          git push --force-with-lease -u origin "${BRANCH}"
+          git push -f -u origin "${BRANCH}"
           EXISTING=$(gh pr list --head "${BRANCH}" --json number --jq '.[0].number // empty')
           if [[ -z "${EXISTING}" ]]; then
             BODY="Automated source update from \`tox -e update-sources\`."
