@@ -311,6 +311,8 @@ Two-stage build:
 | `BASE_IMAGE` | `${REGISTRY}/${NAMESPACE}/${IMAGE_PREFIX}-base:${TAG}` | Base image for service builds |
 | `CONSTRAINTS_FILE` | `requirements.lock` | Lockfile base name used during builds |
 | `DEFAULT_STREAM` | `master` | Stream for which un-suffixed symlinks are created |
+| `PARALLEL` | `nproc` | Max concurrent builds for `build-parallel` |
+| `BUILD_LOGS_DIR` | *(tmpdir, deleted)* | Directory to persist `build-parallel` logs |
 
 ## Adding a new service
 
