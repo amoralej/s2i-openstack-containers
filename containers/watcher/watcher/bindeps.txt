@@ -1,1 +1,2 @@
 # No extra system dependencies beyond base image
+fake-package
