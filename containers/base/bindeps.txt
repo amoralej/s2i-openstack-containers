@@ -6,6 +6,5 @@ python3
 sudo
 util-linux-user
 which
-dumb-init
 python3-pip
 
