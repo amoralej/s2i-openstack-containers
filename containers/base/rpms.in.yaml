@@ -16,7 +16,6 @@ arches:
 packages:
   - ca-certificates
   - curl
-  - dumb-init
   - glibc-langpack-en
   - procps-ng
   - python3
