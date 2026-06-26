@@ -125,7 +125,7 @@ gnocchiclient==7.2.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
-greenlet==3.5.1
+greenlet==3.5.2
     # via
     #   -c upper-constraints.txt.master
     #   eventlet
@@ -224,7 +224,7 @@ microversion-parse==2.1.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
-msgpack==1.2.0
+msgpack==1.2.1
     # via
     #   -c upper-constraints.txt.master
     #   oslo-serialization
@@ -240,7 +240,7 @@ networkx==3.6.1
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
     #   taskflow
-openstacksdk==4.16.0
+openstacksdk==4.17.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
@@ -644,7 +644,7 @@ six==1.17.0
     #   python-binary-memcached
     #   python-dateutil
     #   routes
-sqlalchemy==2.0.50
+sqlalchemy==2.0.51
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
@@ -703,7 +703,7 @@ tzdata==2026.2
     # via
     #   -c upper-constraints.txt.master
     #   kombu
-tzlocal==5.3.1
+tzlocal==5.4.3
     # via
     #   -c upper-constraints.txt.master
     #   apscheduler
@@ -711,7 +711,7 @@ uhashring==2.4
     # via
     #   -c upper-constraints.txt.master
     #   python-binary-memcached
-ujson==5.12.1
+ujson==5.13.0
     # via
     #   -c upper-constraints.txt.master
     #   gnocchiclient
