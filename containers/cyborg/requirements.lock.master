@@ -80,7 +80,7 @@ fasteners==0.20
     # via
     #   -c upper-constraints.txt.master
     #   oslo-concurrency
-futurist==3.3.0
+futurist==3.4.0
     # via
     #   -c upper-constraints.txt.master
     #   oslo-messaging

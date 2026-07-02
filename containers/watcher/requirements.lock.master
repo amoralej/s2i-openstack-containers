@@ -113,7 +113,7 @@ fasteners==0.20
     #   -c upper-constraints.txt.master
     #   oslo-concurrency
     #   taskflow
-futurist==3.3.0
+futurist==3.4.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
