@@ -4,7 +4,7 @@
 #
 #    pip-compile --allow-unsafe --constraint=upper-constraints.txt.master --output-file=requirements.lock.master --strip-extras cyborg-agent/pythonbuilddeps.txt cyborg-agent/pythondeps.txt cyborg/pythonbuilddeps.txt cyborg/pythondeps.txt src/cyborg/requirements.txt
 #
-alembic==1.18.4
+alembic==1.18.5
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
@@ -80,12 +80,12 @@ fasteners==0.20
     # via
     #   -c upper-constraints.txt.master
     #   oslo-concurrency
-futurist==3.3.0
+futurist==3.4.0
     # via
     #   -c upper-constraints.txt.master
     #   oslo-messaging
     #   oslo-service
-greenlet==3.5.2
+greenlet==3.5.3
     # via
     #   -c upper-constraints.txt.master
     #   eventlet
@@ -131,7 +131,7 @@ jsonschema-specifications==2025.9.1
     # via
     #   -c upper-constraints.txt.master
     #   jsonschema
-keystoneauth1==5.14.0
+keystoneauth1==5.15.0
     # via
     #   -c upper-constraints.txt.master
     #   keystonemiddleware
@@ -158,6 +158,10 @@ markupsafe==3.0.3
     #   -c upper-constraints.txt.master
     #   jinja2
     #   mako
+microversion-parse==2.1.0
+    # via
+    #   -c upper-constraints.txt.master
+    #   -r src/cyborg/requirements.txt
 msgpack==1.2.1
     # via
     #   -c upper-constraints.txt.master
@@ -183,7 +187,7 @@ os-service-types==1.8.2
     #   -c upper-constraints.txt.master
     #   keystoneauth1
     #   openstacksdk
-oslo-cache==4.2.0
+oslo-cache==4.3.0
     # via
     #   -c upper-constraints.txt.master
     #   -r cyborg-agent/pythondeps.txt
@@ -194,7 +198,6 @@ oslo-concurrency==7.5.0
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
     #   oslo-service
-    #   oslo-versionedobjects
 oslo-config==10.5.0
     # via
     #   -c upper-constraints.txt.master
@@ -214,7 +217,7 @@ oslo-config==10.5.0
     #   oslo-versionedobjects
     #   pycadf
     #   python-keystoneclient
-oslo-context==6.4.0
+oslo-context==6.5.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
@@ -224,13 +227,13 @@ oslo-context==6.4.0
     #   oslo-middleware
     #   oslo-policy
     #   oslo-versionedobjects
-oslo-db==18.0.0
+oslo-db==18.1.0
     # via
     #   -c upper-constraints.txt.master
     #   -r cyborg-agent/pythondeps.txt
     #   -r cyborg/pythondeps.txt
     #   -r src/cyborg/requirements.txt
-oslo-i18n==6.8.0
+oslo-i18n==6.9.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
@@ -249,7 +252,7 @@ oslo-i18n==6.8.0
     #   oslo-versionedobjects
     #   python-glanceclient
     #   python-keystoneclient
-oslo-log==8.2.0
+oslo-log==8.3.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
@@ -260,7 +263,7 @@ oslo-log==8.2.0
     #   oslo-privsep
     #   oslo-service
     #   oslo-versionedobjects
-oslo-messaging==18.1.0
+oslo-messaging==18.2.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
@@ -269,36 +272,36 @@ oslo-metrics==0.16.0
     # via
     #   -c upper-constraints.txt.master
     #   oslo-messaging
-oslo-middleware==8.1.0
+oslo-middleware==8.2.0
     # via
     #   -c upper-constraints.txt.master
+    #   -r src/cyborg/requirements.txt
     #   oslo-messaging
 oslo-policy==5.1.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
     #   oslo-upgradecheck
-oslo-privsep==3.11.0
+oslo-privsep==3.12.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
-oslo-serialization==5.10.0
+oslo-serialization==5.11.0
     # via
     #   -c upper-constraints.txt.master
     #   keystonemiddleware
     #   oslo-log
     #   oslo-messaging
     #   oslo-policy
-    #   oslo-versionedobjects
     #   pycadf
     #   python-keystoneclient
-oslo-service==4.6.0
+oslo-service==4.7.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
     #   oslo-messaging
     #   oslo-service
-oslo-upgradecheck==2.7.1
+oslo-upgradecheck==2.8.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
@@ -322,7 +325,7 @@ oslo-utils==10.1.1
     #   oslo-versionedobjects
     #   python-glanceclient
     #   python-keystoneclient
-oslo-versionedobjects==3.10.2
+oslo-versionedobjects==3.11.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
@@ -335,10 +338,12 @@ packaging==26.2
 paste==3.10.1
     # via
     #   -c upper-constraints.txt.master
+    #   -r src/cyborg/requirements.txt
     #   oslo-service
 pastedeploy==3.1.0
     # via
     #   -c upper-constraints.txt.master
+    #   -r src/cyborg/requirements.txt
     #   oslo-service
 pbr==7.0.3
     # via
@@ -346,7 +351,6 @@ pbr==7.0.3
     #   -r cyborg-agent/pythonbuilddeps.txt
     #   -r cyborg/pythonbuilddeps.txt
     #   -r src/cyborg/requirements.txt
-    #   keystoneauth1
     #   keystonemiddleware
     #   openstacksdk
     #   os-resource-classes
@@ -369,7 +373,7 @@ platformdirs==4.10.0
     # via
     #   -c upper-constraints.txt.master
     #   openstacksdk
-prettytable==3.17.0
+prettytable==3.18.0
     # via
     #   -c upper-constraints.txt.master
     #   oslo-upgradecheck
@@ -384,7 +388,7 @@ psutil==7.2.2
     #   -r src/cyborg/requirements.txt
     #   openstacksdk
     #   oslo-utils
-pycadf==4.0.1
+pycadf==4.1.0
     # via
     #   -c upper-constraints.txt.master
     #   keystonemiddleware
@@ -444,7 +448,7 @@ pyyaml==6.0.3
     #   oslo-messaging
     #   oslo-policy
     #   oslo-utils
-redis==8.0.0
+redis==8.0.1
     # via
     #   -c upper-constraints.txt.master
     #   oslo-cache
@@ -503,7 +507,7 @@ statsd==4.0.1
     # via
     #   -c upper-constraints.txt.master
     #   oslo-middleware
-stevedore==5.8.0
+stevedore==5.9.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/cyborg/requirements.txt
@@ -562,12 +566,13 @@ webob==1.8.10
     # via
     #   -c upper-constraints.txt.master
     #   keystonemiddleware
+    #   microversion-parse
     #   oslo-messaging
     #   oslo-middleware
     #   oslo-service
     #   pecan
     #   wsme
-wrapt==2.2.1
+wrapt==2.2.2
     # via
     #   -c upper-constraints.txt.master
     #   debtcollector
