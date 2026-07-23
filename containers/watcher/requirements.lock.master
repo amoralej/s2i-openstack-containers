@@ -273,7 +273,7 @@ oslo-cache==4.3.0
     #   -r watcher-api/pythondeps.txt
     #   -r watcher/pythondeps.txt
     #   keystonemiddleware
-oslo-concurrency==7.5.0
+oslo-concurrency==7.6.1
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
@@ -361,7 +361,7 @@ oslo-middleware==8.2.0
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
     #   oslo-messaging
-oslo-policy==5.1.0
+oslo-policy==6.0.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
