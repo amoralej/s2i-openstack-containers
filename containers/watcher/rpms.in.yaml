@@ -23,7 +23,9 @@ packages:
   - libxslt-devel
   - mod_ssl
   - openssl-devel
+  - python3
   - python3-devel
   - python3-mod_wsgi
+  - python3-pip
   - python3-setuptools
   - python3-wheel

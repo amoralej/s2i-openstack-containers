@@ -1,3 +1,5 @@
 # Runtime system dependencies for cyborg-agent
 # PCI device discovery and management
 pciutils
+python3
+python3-pip

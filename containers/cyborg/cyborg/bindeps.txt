@@ -3,3 +3,5 @@
 httpd
 mod_ssl
 python3-mod_wsgi
+python3
+python3-pip
