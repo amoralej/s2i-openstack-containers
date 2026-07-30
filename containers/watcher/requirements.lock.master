@@ -184,7 +184,6 @@ keystoneauth1==5.15.0
     #   keystonemiddleware
     #   openstacksdk
     #   osc-lib
-    #   python-cinderclient
     #   python-ironicclient
     #   python-keystoneclient
     #   python-manilaclient
@@ -332,7 +331,6 @@ oslo-i18n==6.9.0
     #   oslo-upgradecheck
     #   oslo-utils
     #   oslo-versionedobjects
-    #   python-cinderclient
     #   python-keystoneclient
     #   python-openstackclient
     #   python-watcherclient
@@ -413,7 +411,6 @@ oslo-utils==10.1.1
     #   oslo-service
     #   oslo-upgradecheck
     #   oslo-versionedobjects
-    #   python-cinderclient
     #   python-ironicclient
     #   python-keystoneclient
     #   python-manilaclient
@@ -458,7 +455,6 @@ pbr==7.0.3
     #   oslo-middleware
     #   oslo-reports
     #   oslo-utils
-    #   python-cinderclient
     #   python-ironicclient
     #   python-keystoneclient
     #   python-manilaclient
@@ -480,7 +476,6 @@ prettytable==3.18.0
     #   automaton
     #   cliff
     #   oslo-upgradecheck
-    #   python-cinderclient
     #   python-manilaclient
 prometheus-client==0.25.0
     # via
@@ -537,10 +532,6 @@ python-binary-memcached==0.32.0
     # via
     #   -c upper-constraints.txt.master
     #   oslo-cache
-python-cinderclient==9.9.0
-    # via
-    #   -c upper-constraints.txt.master
-    #   -r src/watcher/requirements.txt
 python-dateutil==2.9.0.post0
     # via
     #   -c upper-constraints.txt.master
@@ -613,7 +604,6 @@ requests==2.34.2
     #   osc-lib
     #   oslo-config
     #   oslo-policy
-    #   python-cinderclient
     #   python-ironicclient
     #   python-keystoneclient
     #   python-manilaclient
@@ -677,7 +667,6 @@ stevedore==5.9.0
     #   oslo-messaging
     #   oslo-middleware
     #   oslo-policy
-    #   python-cinderclient
     #   python-ironicclient
     #   python-keystoneclient
     #   python-openstackclient
