@@ -241,7 +241,7 @@ networkx==3.6.1
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
     #   taskflow
-openstacksdk==4.17.0
+openstacksdk==4.18.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
@@ -277,7 +277,7 @@ oslo-concurrency==7.6.1
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
     #   oslo-service
-oslo-config==10.5.0
+oslo-config==10.6.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
@@ -382,7 +382,7 @@ oslo-serialization==5.11.0
     #   python-manilaclient
     #   python-watcherclient
     #   taskflow
-oslo-service==4.7.0
+oslo-service==4.8.0
     # via
     #   -c upper-constraints.txt.master
     #   -r src/watcher/requirements.txt
