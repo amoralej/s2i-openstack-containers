@@ -446,7 +446,10 @@ clone_at_branch() {
   else
     mkdir -p "$(dirname "${dest}")"
     echo "--- Cloning ${url} (${branch}) into ${dest} ---"
-    git clone --branch "${branch}" "${url}" "${dest}" 2>/dev/null
+    if ! git clone --branch "${branch}" "${url}" "${dest}" 2>/dev/null; then
+      git clone "${url}" "${dest}" 2>/dev/null
+      git -C "${dest}" checkout "${branch}"
+    fi
     _AUTO_CLONED["${dest}"]=1
   fi
 
@@ -492,8 +495,8 @@ update_sources_file() {
       local uc_tmp
       uc_tmp=$(mktemp -d)
       git clone --no-checkout "${url}" "${uc_tmp}" 2>/dev/null
-      new_hash=$(git -C "${uc_tmp}" rev-parse "origin/${branch}" 2>/dev/null \
-        || git -C "${uc_tmp}" rev-parse "${branch}" 2>/dev/null)
+      new_hash=$(git -C "${uc_tmp}" rev-parse --verify "origin/${branch}" 2>/dev/null \
+        || git -C "${uc_tmp}" rev-parse --verify "${branch}" 2>/dev/null)
       git -C "${uc_tmp}" checkout "${new_hash}" -- upper-constraints.txt
       cp "${uc_tmp}/upper-constraints.txt" "${project_dir}/${UPSTREAM_CONSTRAINTS}.${stream}"
       rm -rf "${uc_tmp}"
