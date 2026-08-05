@@ -61,6 +61,9 @@
 #     When update-sources runs, it also generates a pip-compile lockfile at
 #     containers/<project>/<CONSTRAINTS_FILE>.<stream> (e.g., requirements.lock.master).
 #     build.sh prefers this lockfile over upper-constraints.txt when building.
+#     It also generates a build-requirements lockfile at
+#     containers/<project>/<BUILD_CONSTRAINTS_FILE>.<stream> (e.g., buildrequirements.lock.master)
+#     using pybuild-deps compile against the requirements lockfile.
 #
 # Environment variables:
 #   STREAM            Stream name (required for build)
@@ -70,6 +73,7 @@
 #   IMAGE_PREFIX      Prefix for image names (default: openstack)
 #   BASE_IMAGE        Base image for the base container (default: registry.access.redhat.com/ubi10/ubi:latest)
 #   CONSTRAINTS_FILE  Constraints/lockfile base name (default: requirements.lock)
+#   BUILD_CONSTRAINTS_FILE  Build-requirements lockfile base name (default: buildrequirements.lock)
 #   DEFAULT_STREAM    Default stream (default: master). When update-sources runs
 #                     for this stream, un-streamed symlinks are created (e.g.,
 #                     requirements.lock -> requirements.lock.master)
@@ -87,6 +91,7 @@ TAG="${TAG:-${STREAM}-latest}"
 IMAGE_PREFIX="${IMAGE_PREFIX:-openstack}"
 BASE_IMAGE="${BASE_IMAGE:-${REGISTRY}/${NAMESPACE}/${IMAGE_PREFIX}-base:${TAG%%,*}}"
 CONSTRAINTS_FILE="${CONSTRAINTS_FILE:-requirements.lock}"
+BUILD_CONSTRAINTS_FILE="${BUILD_CONSTRAINTS_FILE:-buildrequirements.lock}"
 UPSTREAM_CONSTRAINTS="upper-constraints.txt"
 DEFAULT_STREAM="${DEFAULT_STREAM:-master}"
 PARALLEL="${PARALLEL:-$(nproc)}"
@@ -612,6 +617,55 @@ generate_locks_for_targets() {
   done
 }
 
+# Generate a buildrequirements.lock for a project by running pybuild-deps
+# compile against the requirements.lock produced by generate_requirements_lock.
+generate_buildrequirements_lock() {
+  local project="$1"
+  local stream="$2"
+  local project_dir="${CONTAINERS_DIR}/${project}"
+  local lock_file="${project_dir}/${CONSTRAINTS_FILE}.${stream}"
+  local build_lock_file="${BUILD_CONSTRAINTS_FILE}.${stream}"
+
+  if [[ ! -f "${lock_file}" ]]; then
+    echo "WARNING: No ${lock_file} found, skipping build lock for ${project}" >&2
+    return
+  fi
+
+  echo "--- Generating ${project_dir}/${build_lock_file} ---"
+  (cd "${project_dir}" && \
+    pybuild-deps compile \
+      -o "${build_lock_file}" \
+      "${CONSTRAINTS_FILE}.${stream}")
+}
+
+# Generate buildrequirements.lock for each project in the target scope.
+generate_buildlocks_for_targets() {
+  local target="$1"
+  local stream="$2"
+
+  if ! command -v pybuild-deps &>/dev/null; then
+    echo "ERROR: pybuild-deps not found. Install it with: pip install pybuild-deps" >&2
+    return 1
+  fi
+
+  local targets
+  targets=($(resolve_targets "${target}"))
+
+  declare -A _buildlock_projects_seen
+  for img in "${targets[@]}"; do
+    local project
+    project="$(project_name "${img}")"
+    if [[ -z "${project}" ]]; then
+      [[ "${img}" != "base" ]] && continue
+      project="base"
+    fi
+    [[ -n "${_buildlock_projects_seen[$project]:-}" ]] && continue
+    _buildlock_projects_seen["${project}"]=1
+
+    generate_buildrequirements_lock "${project}" "${stream}"
+  done
+}
+
 # Generate rpms.in.yaml for a project by collecting all packages from
 # bindeps.txt and builddeps.txt across every image in the project.
 generate_rpms_in_yaml() {
@@ -893,6 +947,10 @@ case "${ACTION}" in
     echo "=== Generating requirements.lock files ==="
     generate_locks_for_targets "${TARGET}" "${STREAM}"
 
+    echo ""
+    echo "=== Generating buildrequirements.lock files ==="
+    generate_buildlocks_for_targets "${TARGET}" "${STREAM}"
+
     # Create un-streamed symlinks for the default stream
     if [[ "${STREAM}" == "${DEFAULT_STREAM}" ]]; then
       echo ""
@@ -909,7 +967,7 @@ case "${ACTION}" in
         _symlink_seen["${_s_project}"]=1
 
         _s_pdir="${CONTAINERS_DIR}/${_s_project}"
-        for _s_suffix in "${UPSTREAM_CONSTRAINTS}" "${CONSTRAINTS_FILE}"; do
+        for _s_suffix in "${UPSTREAM_CONSTRAINTS}" "${CONSTRAINTS_FILE}" "${BUILD_CONSTRAINTS_FILE}"; do
           _s_streamed="${_s_pdir}/${_s_suffix}.${DEFAULT_STREAM}"
           if [[ -f "${_s_streamed}" ]]; then
             ln -sf "${_s_suffix}.${DEFAULT_STREAM}" "${_s_pdir}/${_s_suffix}"
@@ -959,6 +1017,7 @@ case "${ACTION}" in
     echo "  IMAGE_PREFIX      Prefix for image names (default: openstack)"
     echo "  BASE_IMAGE        Base image for the base container"
     echo "  CONSTRAINTS_FILE  Constraints/lockfile base name (default: requirements.lock)"
+    echo "  BUILD_CONSTRAINTS_FILE  Build-requirements lockfile base name (default: buildrequirements.lock)"
     echo "  DEFAULT_STREAM    Default stream for un-streamed symlinks (default: master)"
     echo "  PARALLEL          Max concurrent builds for build-parallel (default: nproc)"
     echo "  BUILD_LOGS_DIR    Persist build-parallel logs to this directory"

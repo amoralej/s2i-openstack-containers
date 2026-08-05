@@ -24,6 +24,7 @@ containers/
     src/                          # Cloned sources (auto-managed, .gitkeep only in git)
     rpms.in.yaml                  # [generated] RPM packages for rpm-lockfile-prototype
     requirements.lock.<stream>    # [generated] pip-compile lockfile
+    buildrequirements.lock.<stream> # [generated] pybuild-deps build lockfile
     upper-constraints.txt.<stream># [generated] upstream constraints snapshot
     <image>/                      # e.g., watcher, watcher-api
       Containerfile
@@ -153,6 +154,7 @@ should be committed to the repository but never edited by hand.
 |------|----------|----------------|
 | `upper-constraints.txt.<stream>` | `containers/<project>/`, `containers/base/` | Fetched from the `upper-constraints` entry in `sources.txt` |
 | `requirements.lock.<stream>` | `containers/<project>/`, `containers/base/` | `pip-compile` against all `requirements.txt` + `pythondeps.txt` + `pythonbuilddeps.txt`, constrained by `upper-constraints.txt.<stream>` |
+| `buildrequirements.lock.<stream>` | `containers/<project>/`, `containers/base/` | `pybuild-deps compile` against `requirements.lock.<stream>` |
 | `rpms.in.yaml` | `containers/<project>/`, `containers/base/` | Union of all `bindeps.txt` + `builddeps.txt` across images in the project |
 
 When the stream being updated matches `DEFAULT_STREAM` (default: `master`),
@@ -160,6 +162,7 @@ un-suffixed symlinks are also created:
 
 ```
 requirements.lock -> requirements.lock.master
+buildrequirements.lock -> buildrequirements.lock.master
 upper-constraints.txt -> upper-constraints.txt.master
 ```
 
@@ -193,6 +196,8 @@ system packages and `pip install pip-tools` for the Python dependencies.
 
 - `pip-tools` -- provides `pip-compile`, used by `update-sources` to
   generate lockfiles
+- `pybuild-deps` -- used by `update-sources` to generate build-requirements
+  lockfiles
 
 If using tox (recommended), Python dependencies are installed automatically
 in the tox virtualenv.
@@ -236,7 +241,8 @@ This will:
 3. Fetch `upper-constraints.txt` from the requirements repo.
 4. Generate `rpms.in.yaml` from all `bindeps.txt` + `builddeps.txt` files.
 5. Run `pip-compile` to generate `requirements.lock.<stream>`.
-6. Create default-stream symlinks if `STREAM == DEFAULT_STREAM`.
+6. Run `pybuild-deps compile` to generate `buildrequirements.lock.<stream>`.
+7. Create default-stream symlinks if `STREAM == DEFAULT_STREAM`.
 
 Auto-cloned repos in `src/` are cleaned up automatically on exit.
 Pre-existing checkouts in `src/` are used as-is and not removed.
@@ -310,6 +316,7 @@ Two-stage build:
 | `IMAGE_PREFIX` | `openstack` | Prefix for image names (e.g., `openstack-watcher`) |
 | `BASE_IMAGE` | `${REGISTRY}/${NAMESPACE}/${IMAGE_PREFIX}-base:${TAG}` | Base image for service builds |
 | `CONSTRAINTS_FILE` | `requirements.lock` | Lockfile base name used during builds |
+| `BUILD_CONSTRAINTS_FILE` | `buildrequirements.lock` | Build-requirements lockfile base name |
 | `DEFAULT_STREAM` | `master` | Stream for which un-suffixed symlinks are created |
 | `PARALLEL` | `nproc` | Max concurrent builds for `build-parallel` |
 | `BUILD_LOGS_DIR` | *(tmpdir, deleted)* | Directory to persist `build-parallel` logs |
