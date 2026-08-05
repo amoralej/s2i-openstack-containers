@@ -297,6 +297,19 @@ EOF
   assert_file_exists "${TEST_DIR}/containers/test-svc/requirements.lock.master"
 }
 
+test_lockfile_excludes_rpm_python_packages() {
+  command -v pip-compile >/dev/null 2>&1 || skip_test "pip-compile not on PATH"
+
+  printf 'python3\npython3-six\n' > "${TEST_DIR}/containers/test-svc/test-svc/bindeps.txt"
+
+  _run_build STREAM=master
+
+  local lock="${TEST_DIR}/containers/test-svc/requirements.lock.master"
+  assert_file_exists "${lock}"
+  assert_no_grep "^six==" "${lock}"
+  assert_grep "Filtering RPM-provided packages" "${TEST_DIR}/build.log"
+}
+
 test_preexisting_checkout_is_preserved() {
   local src_dir="${TEST_DIR}/containers/test-svc/src/test-svc"
   mkdir -p "${src_dir}"
@@ -327,6 +340,7 @@ TESTS=(
   test_skip_hash_update_fetches_constraints_at_pinned_hash
   test_hash_in_branch_field_upper_constraints
   test_hash_in_branch_field_regular_repo
+  test_lockfile_excludes_rpm_python_packages
   test_preexisting_checkout_is_preserved
 )
 

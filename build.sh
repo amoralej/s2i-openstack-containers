@@ -530,6 +530,83 @@ update_sources_file() {
   fi
 }
 
+# Collect Python package names provided via RPMs from bindeps.txt and
+# builddeps.txt across a project and its images.  RPM packages for Python
+# modules follow the convention python3-<module>.  Returns normalized pip
+# package names (lowercase, dots/underscores replaced with hyphens) one per
+# line.
+collect_rpm_python_packages() {
+  local project_dir="$1"
+  local -A seen
+
+  for depfile in "${project_dir}"/bindeps.txt "${project_dir}"/builddeps.txt; do
+    [[ -f "${depfile}" ]] || continue
+    while IFS= read -r line; do
+      line="${line%%#*}"
+      line="${line// /}"
+      [[ -z "${line}" ]] && continue
+      if [[ "${line}" == python3-* ]]; then
+        local pkg="${line#python3-}"
+        pkg=$(echo "${pkg}" | tr '[:upper:]' '[:lower:]' | sed 's/[._]/-/g')
+        seen["${pkg}"]=1
+      fi
+    done < "${depfile}"
+  done
+
+  for image_dir in "${project_dir}"/*/; do
+    local image
+    image=$(basename "${image_dir}")
+    [[ "${image}" == "common" || "${image}" == "src" ]] && continue
+    [[ ! -f "${image_dir}/Containerfile" ]] && continue
+
+    for depfile in "${image_dir}"/bindeps.txt "${image_dir}"/builddeps.txt; do
+      [[ -f "${depfile}" ]] || continue
+      while IFS= read -r line; do
+        line="${line%%#*}"
+        line="${line// /}"
+        [[ -z "${line}" ]] && continue
+        if [[ "${line}" == python3-* ]]; then
+          local pkg="${line#python3-}"
+          pkg=$(echo "${pkg}" | tr '[:upper:]' '[:lower:]' | sed 's/[._]/-/g')
+          seen["${pkg}"]=1
+        fi
+      done < "${depfile}"
+    done
+  done
+
+  printf '%s\n' "${!seen[@]}"
+}
+
+# Remove entries for RPM-provided packages from a pip-compile lockfile.
+# Args: <lockfile> <space-separated normalized package names>
+filter_lockfile_rpm_packages() {
+  local lockfile="$1"
+  local exclude_str="$2"
+
+  [[ -z "${exclude_str}" ]] && return
+
+  local tmp
+  tmp=$(mktemp)
+  awk -v excl="${exclude_str}" '
+  BEGIN {
+    n = split(excl, arr, " ")
+    for (i = 1; i <= n; i++) exclude[arr[i]] = 1
+  }
+  /^[a-zA-Z]/ {
+    pkg = $0
+    sub(/[>=<\[;].*/, "", pkg)
+    gsub(/^[ \t]+|[ \t]+$/, "", pkg)
+    norm = tolower(pkg)
+    gsub(/[._]/, "-", norm)
+    if (norm in exclude) { skip = 1; next }
+    skip = 0; print; next
+  }
+  /^[ \t]/ { if (!skip) print; next }
+  { skip = 0; print }
+  ' "${lockfile}" > "${tmp}"
+  mv "${tmp}" "${lockfile}"
+}
+
 # Generate a single requirements.lock for a project by running pip-compile
 # against requirements.txt from all source packages (project + all images)
 # plus pythondeps.txt and pythonbuilddeps.txt from every image,
@@ -592,6 +669,15 @@ generate_requirements_lock() {
       -c "${UPSTREAM_CONSTRAINTS}.${stream}" \
       -o "${lock_file}" \
       "${input_files[@]}")
+
+  local rpm_pkgs
+  rpm_pkgs=$(collect_rpm_python_packages "${project_dir}")
+  if [[ -n "${rpm_pkgs}" ]]; then
+    local exclude_str
+    exclude_str=$(echo "${rpm_pkgs}" | tr '\n' ' ')
+    echo "--- Filtering RPM-provided packages from ${lock_file}: ${exclude_str}---"
+    filter_lockfile_rpm_packages "${project_dir}/${lock_file}" "${exclude_str}"
+  fi
 }
 
 # Generate requirements.lock for each project in the target scope.
