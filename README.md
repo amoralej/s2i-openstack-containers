@@ -247,6 +247,13 @@ This will:
 Auto-cloned repos in `src/` are cleaned up automatically on exit.
 Pre-existing checkouts in `src/` are used as-is and not removed.
 
+To regenerate lockfiles without updating pinned hashes (steps 1--3 are
+skipped; repos are cloned at the existing pinned hashes instead):
+
+```bash
+STREAM=master SKIP_HASH_UPDATE=1 ./build.sh update-sources <project-or-all>
+```
+
 ### Building images
 
 ```bash
@@ -320,6 +327,7 @@ Two-stage build:
 | `DEFAULT_STREAM` | `master` | Stream for which un-suffixed symlinks are created |
 | `PARALLEL` | `nproc` | Max concurrent builds for `build-parallel` |
 | `BUILD_LOGS_DIR` | *(tmpdir, deleted)* | Directory to persist `build-parallel` logs |
+| `SKIP_HASH_UPDATE` | *(unset)* | If set, `update-sources` skips updating pinned hashes and clones repos at existing pins; lockfiles are still regenerated |
 
 ## Adding a new service
 

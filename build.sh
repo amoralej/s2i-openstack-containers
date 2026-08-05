@@ -77,6 +77,9 @@
 #   DEFAULT_STREAM    Default stream (default: master). When update-sources runs
 #                     for this stream, un-streamed symlinks are created (e.g.,
 #                     requirements.lock -> requirements.lock.master)
+#   SKIP_HASH_UPDATE  If set, update-sources skips updating pinned hashes in
+#                     sources.txt and clones repos at existing pinned hashes
+#                     instead. Lockfiles and rpms.in.yaml are still regenerated.
 
 set -euo pipefail
 
@@ -94,6 +97,7 @@ CONSTRAINTS_FILE="${CONSTRAINTS_FILE:-requirements.lock}"
 BUILD_CONSTRAINTS_FILE="${BUILD_CONSTRAINTS_FILE:-buildrequirements.lock}"
 UPSTREAM_CONSTRAINTS="upper-constraints.txt"
 DEFAULT_STREAM="${DEFAULT_STREAM:-master}"
+SKIP_HASH_UPDATE="${SKIP_HASH_UPDATE:-}"
 PARALLEL="${PARALLEL:-$(nproc)}"
 
 # Discover all buildable images from the directory structure.
@@ -759,6 +763,44 @@ generate_rpms_in_for_targets() {
   done
 }
 
+# Ensure sources and constraints exist for targets without updating hashes.
+# Clones repos at the pinned hashes already recorded in sources.txt and
+# fetches upper-constraints.txt at those same hashes.
+ensure_sources_for_targets() {
+  local target="$1"
+  local stream="$2"
+
+  if [[ -z "${stream}" ]]; then
+    echo "ERROR: STREAM is required for update-sources." >&2
+    return 1
+  fi
+
+  local targets
+  targets=($(resolve_targets "${target}"))
+
+  declare -A _ensure_projects_seen
+
+  for img in "${targets[@]}"; do
+    local project
+    project="$(project_name "${img}")"
+
+    if [[ -z "${project}" ]]; then
+      if [[ "${img}" == "base" ]] && [[ -z "${_ensure_projects_seen[base]:-}" ]]; then
+        _ensure_projects_seen["base"]=1
+        ensure_project_constraints "base" "${stream}"
+      fi
+      continue
+    fi
+
+    ensure_sources_for_stream "${img}" "${stream}"
+
+    if [[ -z "${_ensure_projects_seen[$project]:-}" ]]; then
+      _ensure_projects_seen["${project}"]=1
+      ensure_project_constraints "${project}" "${stream}"
+    fi
+  done
+}
+
 # Update sources.txt files for targets in scope.
 # Clones source repos at branch tips to resolve hashes, fetches
 # upper-constraints.txt, and updates pinned hashes in sources.txt.
@@ -936,9 +978,14 @@ case "${ACTION}" in
     done
     ;;
   update-sources)
-    update_sources "${TARGET}" "${STREAM}"
+    if [[ -n "${SKIP_HASH_UPDATE}" ]]; then
+      echo "=== Skipping hash update (SKIP_HASH_UPDATE is set) ==="
+      ensure_sources_for_targets "${TARGET}" "${STREAM}"
+    else
+      update_sources "${TARGET}" "${STREAM}"
+    fi
 
-    # After updating hashes, generate requirements.lock for each image
+    # Generate lockfiles and metadata
     echo ""
     echo "=== Generating rpms.in.yaml files ==="
     generate_rpms_in_for_targets "${TARGET}"
@@ -1021,6 +1068,7 @@ case "${ACTION}" in
     echo "  DEFAULT_STREAM    Default stream for un-streamed symlinks (default: master)"
     echo "  PARALLEL          Max concurrent builds for build-parallel (default: nproc)"
     echo "  BUILD_LOGS_DIR    Persist build-parallel logs to this directory"
+    echo "  SKIP_HASH_UPDATE  Skip updating pinned hashes; regenerate locks only"
     echo ""
     echo "Source directories: containers/<project>/src/<name>/"
     echo "Overrides:          containers/<project>/src/overrides/<pkg>/"
