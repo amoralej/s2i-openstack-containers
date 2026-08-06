@@ -80,6 +80,9 @@
 #   SKIP_HASH_UPDATE  If set, update-sources skips updating pinned hashes in
 #                     sources.txt and clones repos at existing pinned hashes
 #                     instead. Lockfiles and rpms.in.yaml are still regenerated.
+#   PIP_NO_BINARY     If set, passed as --build-arg to buildah so Containerfiles
+#                     can set ENV PIP_NO_BINARY. Use ":all:" to force pip to
+#                     build all packages from source instead of using wheels.
 
 set -euo pipefail
 
@@ -98,6 +101,7 @@ BUILD_CONSTRAINTS_FILE="${BUILD_CONSTRAINTS_FILE:-buildrequirements.lock}"
 UPSTREAM_CONSTRAINTS="upper-constraints.txt"
 DEFAULT_STREAM="${DEFAULT_STREAM:-master}"
 SKIP_HASH_UPDATE="${SKIP_HASH_UPDATE:-}"
+PIP_NO_BINARY="${PIP_NO_BINARY:-}"
 PARALLEL="${PARALLEL:-$(nproc)}"
 
 # Discover all buildable images from the directory structure.
@@ -293,6 +297,7 @@ build_image() {
       $(image_tag_args "${dir_name}") \
       --build-arg "CONSTRAINTS_FILE=${base_constraints}" \
       --build-arg "BASE_IMAGE=${BASE_IMAGE}" \
+      ${PIP_NO_BINARY:+--build-arg "PIP_NO_BINARY=${PIP_NO_BINARY}"} \
       -f "${CONTAINERS_DIR}/${dir_name}/Containerfile" \
       "${CONTAINERS_DIR}/${dir_name}/"
     return
@@ -329,6 +334,7 @@ build_image() {
     $(image_tag_args "${dir_name}") \
     --build-arg "CONSTRAINTS_FILE=${build_constraints}" \
     --build-arg "BASE_IMAGE=${BASE_IMAGE}" \
+    ${PIP_NO_BINARY:+--build-arg "PIP_NO_BINARY=${PIP_NO_BINARY}"} \
     -f "${CONTAINERS_DIR}/${dir_name}/Containerfile" \
     "${CONTAINERS_DIR}/${project}/"
 }
@@ -1158,6 +1164,7 @@ case "${ACTION}" in
     echo "  PARALLEL          Max concurrent builds for build-parallel (default: nproc)"
     echo "  BUILD_LOGS_DIR    Persist build-parallel logs to this directory"
     echo "  SKIP_HASH_UPDATE  Skip updating pinned hashes; regenerate locks only"
+    echo "  PIP_NO_BINARY     Pass PIP_NO_BINARY to container build (e.g., ':all:')"
     echo ""
     echo "Source directories: containers/<project>/src/<name>/"
     echo "Overrides:          containers/<project>/src/overrides/<pkg>/"

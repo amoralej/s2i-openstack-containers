@@ -328,6 +328,7 @@ Two-stage build:
 | `PARALLEL` | `nproc` | Max concurrent builds for `build-parallel` |
 | `BUILD_LOGS_DIR` | *(tmpdir, deleted)* | Directory to persist `build-parallel` logs |
 | `SKIP_HASH_UPDATE` | *(unset)* | If set, `update-sources` skips updating pinned hashes and clones repos at existing pins; lockfiles are still regenerated |
+| `PIP_NO_BINARY` | *(unset)* | If set, passed as `--build-arg` to the container build so pip builds packages from source (e.g., `:all:`) |
 
 ## Adding a new service
 
