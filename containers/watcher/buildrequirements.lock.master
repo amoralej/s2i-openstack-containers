@@ -8,8 +8,6 @@ build==1.5.0
     # via cmd2
 calver==2025.10.20
     # via trove-classifiers
-cffi==2.0.0
-    # via cryptography
 coherent-licensed==0.5.2
     # via
     #   importlib-metadata
@@ -75,9 +73,7 @@ hatchling==1.31.0
     #   urllib3
     #   wcwidth
 maturin==1.14.1
-    # via
-    #   cryptography
-    #   rpds-py
+    # via rpds-py
 packaging==26.0
     # via
     #   croniter
@@ -143,8 +139,6 @@ poetry-core==2.4.1
     # via
     #   iso8601
     #   rich
-pycparser==3.0
-    # via cffi
 pyproject-hooks==1.2.0
     # via build
 semantic-version==2.10.0
@@ -194,6 +188,8 @@ wheel==0.47.0
 
 # The following packages are considered to be unsafe in a requirements file:
 setuptools==82.0.1
+    # via charset-normalizer
+setuptools==83.0.0
     # via
     #   alembic
     #   apscheduler
@@ -203,10 +199,8 @@ setuptools==82.0.1
     #   calver
     #   certifi
     #   cffi
-    #   charset-normalizer
     #   cmd2
     #   cotyledon
-    #   cryptography
     #   decorator
     #   dogpile-cache
     #   fasteners
@@ -232,6 +226,7 @@ setuptools==82.0.1
     #   pyjwt
     #   pymysql
     #   pyperclip
+    #   python-dateutil
     #   python-observabilityclient
     #   python-watcherclient
     #   pyyaml
@@ -250,7 +245,3 @@ setuptools==82.0.1
     #   wrapt
     #   yappi
     #   zipp
-setuptools==83.0.0
-    # via
-    #   python-dateutil
-    #   setuptools-scm
