@@ -4,8 +4,6 @@
 #
 #    pybuild-deps compile --output-file=buildrequirements.lock.master requirements.lock.master
 #
-build==1.5.0
-    # via cmd2
 calver==2025.10.20
     # via trove-classifiers
 cffi==2.0.0
@@ -16,22 +14,18 @@ coherent-licensed==0.5.2
     #   zipp
 cython==3.2.9
     # via
-    #   lxml
     #   pyyaml
     #   sqlalchemy
 flit-core==3.12.0
     # via
     #   coherent-licensed
     #   jinja2
-    #   markdown-it-py
-    #   mdurl
     #   pyparsing
-    #   pyproject-hooks
     #   typing-extensions
+    #   warlock
     #   wheel
 flit-core==4.0.2
     # via
-    #   build
     #   idna
     #   packaging
     #   pathspec
@@ -51,8 +45,6 @@ hatch-vcs==0.5.0
     #   testresources
     #   testscenarios
     #   urllib3
-hatchling==1.29.0
-    # via croniter
 hatchling==1.31.0
     # via
     #   attrs
@@ -65,10 +57,8 @@ hatchling==1.31.0
     #   legacy-cgi
     #   platformdirs
     #   prettytable
-    #   pygments
     #   redis
     #   referencing
-    #   rich-argparse
     #   testresources
     #   testscenarios
     #   uhashring
@@ -78,26 +68,16 @@ maturin==1.14.1
     # via
     #   cryptography
     #   rpds-py
-packaging==26.0
-    # via
-    #   croniter
-    #   hatchling
 packaging==26.2
     # via
     #   hatchling
     #   setuptools-scm
     #   vcs-versioning
     #   wheel
-pathspec==1.0.4
-    # via
-    #   croniter
-    #   hatchling
 pathspec==1.1.1
     # via hatchling
 pbr==7.0.3
     # via
-    #   automaton
-    #   cliff
     #   debtcollector
     #   futurist
     #   keystoneauth1
@@ -106,7 +86,6 @@ pbr==7.0.3
     #   openstacksdk
     #   os-resource-classes
     #   os-service-types
-    #   osc-lib
     #   oslo-cache
     #   oslo-concurrency
     #   oslo-config
@@ -118,34 +97,23 @@ pbr==7.0.3
     #   oslo-metrics
     #   oslo-middleware
     #   oslo-policy
-    #   oslo-reports
+    #   oslo-privsep
     #   oslo-serialization
     #   oslo-service
     #   oslo-upgradecheck
     #   oslo-utils
     #   oslo-versionedobjects
     #   pycadf
-    #   python-ironicclient
+    #   python-glanceclient
     #   python-keystoneclient
-    #   python-manilaclient
-    #   python-observabilityclient
-    #   python-openstackclient
-    #   python-watcherclient
     #   stevedore
-    #   taskflow
     #   wsme
 pluggy==1.6.0
-    # via
-    #   croniter
-    #   hatchling
+    # via hatchling
 poetry-core==2.4.1
-    # via
-    #   iso8601
-    #   rich
+    # via iso8601
 pycparser==3.0
     # via cffi
-pyproject-hooks==1.2.0
-    # via build
 semantic-version==2.10.0
     # via setuptools-rust
 setuptools-rust==1.13.0
@@ -154,25 +122,16 @@ setuptools-rust==1.13.0
     #   maturin
 setuptools-scm==10.2.1
     # via
-    #   apscheduler
     #   cachetools
-    #   cmd2
     #   cotyledon
-    #   gnocchiclient
     #   hatch-vcs
     #   importlib-metadata
     #   pluggy
     #   setuptools-rust
-    #   tenacity
-    #   ujson
     #   urllib3
     #   zipp
 setuptools-scm==7.1.0
     # via python-dateutil
-trove-classifiers==2026.1.14.14
-    # via
-    #   croniter
-    #   hatchling
 trove-classifiers==2026.6.1.19
     # via hatchling
 typing-extensions==4.15.0
@@ -181,10 +140,8 @@ vcs-versioning==2.2.3
     # via setuptools-scm
 wheel==0.47.0
     # via
-    #   autopage
     #   bcrypt
     #   fasteners
-    #   gnocchiclient
     #   mako
     #   pycparser
     #   python-dateutil
@@ -195,44 +152,33 @@ wheel==0.47.0
 setuptools==82.0.1
     # via
     #   alembic
-    #   apscheduler
-    #   autopage
     #   bcrypt
     #   cachetools
     #   calver
     #   certifi
     #   cffi
     #   charset-normalizer
-    #   cmd2
     #   cotyledon
     #   cryptography
     #   decorator
     #   dogpile-cache
     #   fasteners
-    #   gnocchiclient
     #   greenlet
     #   importlib-metadata
-    #   lxml
     #   mako
     #   markupsafe
     #   maturin
     #   msgpack
     #   netaddr
-    #   networkx
     #   pastedeploy
     #   pathspec
     #   pbr
     #   pluggy
     #   prometheus-client
-    #   prompt-toolkit
     #   psutil
     #   pycparser
-    #   pydot
     #   pyjwt
     #   pymysql
-    #   pyperclip
-    #   python-observabilityclient
-    #   python-watcherclient
     #   pyyaml
     #   repoze-lru
     #   requests
@@ -240,11 +186,8 @@ setuptools==82.0.1
     #   setuptools-scm
     #   sqlalchemy
     #   statsd
-    #   tenacity
     #   trove-classifiers
     #   tzdata
-    #   tzlocal
-    #   ujson
     #   vcs-versioning
     #   wrapt
     #   yappi
