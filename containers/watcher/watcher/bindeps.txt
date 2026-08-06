@@ -1,3 +1,0 @@
-# No extra system dependencies beyond base image
-python3
-python3-pip
