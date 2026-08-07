@@ -1,0 +1,38 @@
+---
+# Containerfile and repo hygiene hooks.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+        files: \.(yaml|yml)$
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  - repo: https://github.com/openstack/bashate
+    rev: 2.1.1
+    hooks:
+      - id: bashate
+        name: bashate (build.sh)
+        files: ^build\.sh$
+        args:
+          - --error
+          - .
+          - --ignore=E003,E006,E042,E043,E044
+        # Ignores:
+        # E003: Indent not multiple of 4 (this repo uses 2-space indent)
+        # E006: Line longer than 79 columns
+        # E042: local declaration hides errors
+        # E043: Arithmetic compound return semantics ((x--)) || true is intentional
+        # E044: False positives inside embedded awk scripts
+
+  - repo: https://github.com/shenxianpeng/hadolint-pre-commit
+    rev: v2.15.1.2
+    hooks:
+      - id: hadolint
+        name: hadolint (Containerfiles)
+        # identify tags Containerfile as type dockerfile
+        types: [dockerfile]

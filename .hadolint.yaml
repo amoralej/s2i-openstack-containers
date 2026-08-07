@@ -1,0 +1,27 @@
+---
+# Hadolint config for S2I OpenStack Containerfiles.
+# Ignores match intentional patterns in this repo (UBI/microdnf, kolla users,
+# package lists from dep files, multi-stage readability).
+failure-threshold: warning
+trustedRegistries:
+  - registry.access.redhat.com
+ignored:
+  # UBI base and BASE_IMAGE ARG default to :latest; stream tags are applied at build time
+  - DL3007
+  # openstack-base is a foundation image that must remain root for child images
+  - DL3002
+  # Service images FROM ${BASE_IMAGE}; local builds use podman localhost/ refs
+  # (hadolint only treats host:port or dotted hosts as registries)
+  - DL3026
+  # RPM versions are managed via repos/lockfiles, not pinned in Containerfiles
+  - DL3041
+  # Package-list RUN patterns intentionally use pipes; buildah/bash handle failures
+  - DL4006
+  # Separate RUNs kept for readability across build stages
+  - DL3059
+  # Named users from uid_gid_manage (kolla convention)
+  - DL3066
+  # Intentional word-splitting of package lists read from dep files
+  - SC2086
+  # [ -o ] used in source package discovery loops
+  - SC2166
