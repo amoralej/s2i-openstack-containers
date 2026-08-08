@@ -80,6 +80,7 @@ packaging==26.0
     #   hatchling
 packaging==26.2
     # via
+    #   build
     #   hatchling
     #   setuptools-scm
     #   vcs-versioning
@@ -126,7 +127,6 @@ pbr==7.0.3
     #   python-manilaclient
     #   python-observabilityclient
     #   python-openstackclient
-    #   python-watcherclient
     #   stevedore
     #   taskflow
     #   wsme
@@ -171,7 +171,7 @@ trove-classifiers==2026.6.1.19
     # via hatchling
 typing-extensions==4.15.0
     # via setuptools-scm
-vcs-versioning==2.2.3
+vcs-versioning==2.2.4
     # via setuptools-scm
 wheel==0.47.0
     # via
@@ -227,7 +227,6 @@ setuptools==83.0.0
     #   pyperclip
     #   python-dateutil
     #   python-observabilityclient
-    #   python-watcherclient
     #   pyyaml
     #   repoze-lru
     #   requests
