@@ -51,7 +51,7 @@ hatch-vcs==0.5.0
     #   urllib3
 hatchling==1.29.0
     # via croniter
-hatchling==1.31.0
+hatchling==1.32.0
     # via
     #   attrs
     #   dnspython
@@ -138,6 +138,7 @@ poetry-core==2.4.1
     # via
     #   iso8601
     #   rich
+    #   tomlkit
 pyproject-hooks==1.2.0
     # via build
 semantic-version==2.10.0
@@ -163,6 +164,8 @@ setuptools-scm==10.2.1
     #   zipp
 setuptools-scm==7.1.0
     # via python-dateutil
+tomlkit==0.15.1
+    # via hatchling
 trove-classifiers==2026.1.14.14
     # via
     #   croniter
